@@ -1,0 +1,1313 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旅行しおり作成ツール｜LINE共有できる旅行しおり画像を無料生成</title>
+  <meta name="description" content="旅行の幹事向け。旅行日程・集合場所・旅程・持ち物などを入力するだけで、スマホで見やすい旅行しおり画像を作成できます。LINE共有に最適。無料・登録不要。">
+  <meta property="og:title"       content="旅行しおり作成ツール｜LINE共有できる旅行しおり画像を無料生成">
+  <meta property="og:description" content="旅行の幹事向け。旅行日程・集合場所・持ち物などを入力すると、スマホで見やすい旅行しおり画像を自動生成できます。登録不要・無料。">
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://cleverkitjp.github.io/travel-shiori/">
+  <meta property="og:image"       content="https://cleverkitjp.github.io/img/travel-shiori-ogp.png">
+  <meta property="og:locale"      content="ja_JP">
+  <meta name="twitter:card"       content="summary_large_image">
+
+  <link rel="stylesheet" href="https://cleverkitjp.github.io/common.css">
+
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F6517NYNFF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F6517NYNFF');
+  </script>
+
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9727255179923866"
+       crossorigin="anonymous"></script>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --orange  : #E8744A;
+      --amber   : #F5A623;
+      --rose    : #E8726A;
+      --cream   : #FFF8F0;
+      --sand    : #F2E8D8;
+      --brown   : #8B5E3C;
+      --text    : #2D1B0E;
+      --sub     : #7A5C44;
+      --border  : #E8D5C0;
+      --white   : #FFFFFF;
+      --shadow  : 0 4px 20px rgba(139,94,60,.12);
+      --r-lg    : 20px;
+      --r-md    : 12px;
+      --r-sm    : 8px;
+      --serif   : 'Noto Serif JP', serif;
+      --sans    : 'Noto Sans JP', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 80px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--rose) 50%, var(--amber) 100%);
+      padding: 36px 20px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .page-header h1 { font-family: var(--serif); font-size: 26px; font-weight: 700; color: #fff; letter-spacing: .05em; position: relative; }
+    .page-header p  { font-size: 13px; color: rgba(255,255,255,.88); margin-top: 6px; position: relative; }
+
+    .container { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sub);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="time"],
+    textarea {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--sans);
+      font-size: 16px;
+      color: var(--text);
+      background: var(--cream);
+      transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input[type="text"]:focus,
+    input[type="time"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,116,74,.15);
+      background: #fff;
+    }
+    textarea { min-height: 120px; resize: vertical; line-height: 1.8; }
+
+    .date-range-wrap { position: relative; }
+    .date-pick-btn {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 18px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      background: var(--cream);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      touch-action: manipulation;
+    }
+    .date-pick-btn:hover  { border-color: var(--orange); background: #fff; }
+    .date-pick-btn.open   { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,116,74,.15); background: #fff; }
+    .date-pick-btn.has-val { border-color: var(--orange); }
+
+    .date-pick-icon { font-size: 20px; flex-shrink: 0; }
+    .date-pick-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .date-pick-lbl  { font-size: 11px; color: var(--sub); font-weight: 600; letter-spacing: .06em; }
+    .date-pick-val  { font-size: 15px; font-weight: 600; color: var(--text); }
+    .date-pick-val.empty { color: #B8A090; font-weight: 400; font-size: 14px; }
+    .date-pick-arrow {
+      font-size: 12px; color: var(--sub); flex-shrink: 0;
+      transition: transform .2s;
+    }
+    .date-pick-btn.open .date-pick-arrow { transform: rotate(180deg); }
+
+    .cal-step-bar {
+      display: flex;
+      background: var(--sand);
+      border-bottom: 1px solid var(--border);
+    }
+    .cal-step-item {
+      flex: 1;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      border-bottom: 3px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    .cal-step-item.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+    }
+    .cal-step-item.done { color: var(--brown); }
+
+    .cal-popup {
+      display: none;
+      margin-top: 10px;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: 0 8px 32px rgba(139,94,60,.18);
+      overflow: hidden;
+    }
+    .cal-popup.open { display: block; }
+
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      background: linear-gradient(135deg, var(--orange), var(--rose));
+    }
+    .cal-month-lbl { font-family: var(--serif); font-size: 15px; font-weight: 700; color: #fff; letter-spacing: .05em; }
+    .cal-nav {
+      width: 36px; height: 36px;
+      border: none;
+      background: rgba(255,255,255,.2);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+      touch-action: manipulation;
+    }
+    .cal-nav:hover { background: rgba(255,255,255,.35); }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      padding: 8px 8px 4px;
+      background: var(--sand);
+    }
+    .cal-weekdays span {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      padding: 4px 0;
+    }
+    .cal-weekdays span:first-child { color: #E05050; }
+    .cal-weekdays span:last-child  { color: #4060C0; }
+
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      padding: 4px 8px 10px;
+      gap: 2px;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      min-height: 38px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      font-size: 14px;
+      font-family: var(--sans);
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+      touch-action: manipulation;
+    }
+    .cal-day:hover:not(:disabled):not(.empty) { background: #FFF0E8; }
+    .cal-day.sun { color: #E05050; }
+    .cal-day.sat { color: #4060C0; }
+    .cal-day.empty { pointer-events: none; }
+    .cal-day.today { font-weight: 700; border: 1.5px solid var(--orange); }
+    .cal-day.sel-start,
+    .cal-day.sel-end   { background: var(--orange) !important; color: #fff !important; font-weight: 700; }
+    .cal-day.in-range  { background: #FFE8D8; border-radius: 0; }
+    .cal-day.range-s   { border-radius: 50% 0 0 50%; }
+    .cal-day.range-e   { border-radius: 0 50% 50% 0; }
+    .cal-day:disabled  { opacity: .3; cursor: default; }
+    .cal-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--sub);
+      padding: 6px 0 12px;
+    }
+
+    .day-block {
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .day-block:last-child { margin-bottom: 0; }
+    .day-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #F5EDE0, #FAEADE);
+      border-bottom: 1px solid var(--border);
+    }
+    .day-block-title {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brown);
+      letter-spacing: .06em;
+    }
+    .day-block-date {
+      font-size: 12px;
+      color: var(--sub);
+      font-weight: 500;
+    }
+
+    .day-block-body { padding: 12px 12px 8px; }
+    .schedule-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .schedule-row .time-input  { width: 110px; flex-shrink: 0; }
+    .schedule-row .content-input { flex: 1; }
+
+    .del-btn {
+      width: 44px; height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: #FFF0EC;
+      color: var(--rose);
+      font-size: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+      touch-action: manipulation;
+    }
+    .del-btn:hover { background: #FFD5CF; }
+    .del-btn:disabled { opacity: .3; cursor: default; }
+
+    .add-row-btn {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-md);
+      background: transparent;
+      color: var(--sub);
+      font-size: 13px;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      touch-action: manipulation;
+    }
+    .add-row-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    .schedule-placeholder {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--sub);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .schedule-placeholder .icon { font-size: 28px; display: block; margin-bottom: 8px; }
+
+    .btn-generate {
+      width: 100%;
+      min-height: 56px;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--orange), var(--rose));
+      color: #fff;
+      border: none;
+      border-radius: var(--r-lg);
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(232,116,74,.35);
+      transition: transform .15s, box-shadow .15s, opacity .2s;
+      touch-action: manipulation;
+    }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,116,74,.45); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .btn-generate .loading { display: none; }
+    .btn-generate.is-loading .label  { display: none; }
+    .btn-generate.is-loading .loading { display: inline; }
+
+    .sub-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .btn-clear {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 16px;
+      background: #fff;
+      color: var(--sub);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, color .2s;
+      touch-action: manipulation;
+    }
+    .btn-clear:hover {
+      background: #FFF4EE;
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    #result-section { display: none; }
+    #result-section.visible { display: block; }
+    .result-preview-wrap {
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      background: var(--sand);
+    }
+    #result-preview { width: 100%; display: block; }
+    .action-buttons { display: flex; gap: 12px; }
+
+    .btn-share {
+      flex: 1; min-height: 52px; padding: 14px 16px;
+      background: linear-gradient(135deg, #25A244, #1A8035);
+      color: #fff; border: none; border-radius: var(--r-md);
+      font-family: var(--sans); font-size: 16px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 16px rgba(37,162,68,.3);
+      transition: transform .15s, box-shadow .15s;
+      touch-action: manipulation;
+    }
+    .btn-share:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,162,68,.4); }
+
+    .btn-save {
+      flex: 1; min-height: 52px; padding: 14px 16px;
+      background: #fff; color: var(--orange);
+      border: 2px solid var(--orange); border-radius: var(--r-md);
+      font-family: var(--sans); font-size: 16px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .2s;
+      touch-action: manipulation;
+    }
+    .btn-save:hover { background: #FFF4EE; }
+    .hint-text { text-align: center; font-size: 12px; color: var(--sub); margin-top: 10px; line-height: 1.6; }
+
+    #shiori-canvas-wrap {
+      position: fixed; left: -9999px; top: 0;
+      width: 1080px; z-index: -1; pointer-events: none;
+    }
+    #shiori-output {
+      width: 1080px;
+      background: #FFF8F0;
+      font-family: 'Noto Serif JP', serif;
+      color: #2D1B0E;
+      overflow: hidden;
+    }
+
+    .s-header {
+      position: relative;
+      min-height: 240px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding: 40px 48px 52px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .s-header-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, #E8744A 0%, #E8726A 45%, #F5A623 100%);
+    }
+    .s-header-img { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; }
+    .s-header-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.1), rgba(0,0,0,.55)); }
+    .s-header-content { position: relative; z-index: 1; }
+    .s-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.25);
+      border: 1px solid rgba(255,255,255,.5);
+      color: #fff; font-size: 18px; letter-spacing: .14em;
+      padding: 8px 28px; border-radius: 40px; margin-bottom: 18px;
+    }
+    .s-title { font-size: 52px; font-weight: 700; color: #fff; text-shadow: 0 3px 16px rgba(0,0,0,.3); line-height: 1.3; letter-spacing: .04em; }
+
+    .s-body { padding: 20px 0 40px; }
+    .s-section { margin: 0 40px 28px; background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(139,94,60,.1); border: 1px solid #F0E0CC; }
+    .s-sec-hdr { background: linear-gradient(135deg, #F5EDE0, #FAEADE); padding: 16px 32px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #F0E0CC; }
+    .s-sec-hdr .ico { font-size: 22px; }
+    .s-sec-hdr .ttl { font-size: 18px; font-weight: 700; color: #8B5E3C; letter-spacing: .1em; }
+    .s-sec-body { padding: 24px 32px; }
+
+    .s-info-row { display: flex; align-items: baseline; gap: 20px; margin-bottom: 14px; }
+    .s-info-row:last-child { margin-bottom: 0; }
+    .s-info-lbl { font-size: 14px; color: #B07850; font-weight: 600; letter-spacing: .1em; min-width: 80px; flex-shrink: 0; }
+    .s-info-val { font-size: 20px; color: #2D1B0E; font-weight: 600; line-height: 1.5; }
+
+    .s-row { display: flex; gap: 20px; align-items: flex-start; padding: 12px 0; border-bottom: 1px dashed #F0E0CC; }
+    .s-row:last-child { border-bottom: none; }
+    .s-time { font-size: 16px; color: #B07850; font-weight: 600; min-width: 72px; flex-shrink: 0; padding-top: 2px; }
+    .s-dot  { width: 10px; height: 10px; background: #E8744A; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+    .s-content { flex: 1; font-size: 18px; color: #2D1B0E; line-height: 1.6; }
+
+    .s-memo { font-size: 18px; color: #2D1B0E; line-height: 2.0; white-space: pre-wrap; }
+    .s-footer { text-align: center; padding: 16px 0 28px; font-size: 14px; color: #C0A080; letter-spacing: .12em; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>✈️ 旅行しおりメーカー</h1>
+    <p>旅行情報を入力して、LINEで共有できるしおりを作成</p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-title"><span>📋</span>基本情報</div>
+
+      <div class="form-group">
+        <label for="trip-title">旅行タイトル</label>
+        <input type="text" id="trip-title" placeholder="例）沖縄旅行2026">
+      </div>
+
+      <div class="form-group">
+        <label>日程</label>
+        <div class="date-range-wrap">
+          <button type="button" class="date-pick-btn" id="date-pick-btn" aria-label="日程を選択">
+            <span class="date-pick-icon">📅</span>
+            <span class="date-pick-body">
+              <span class="date-pick-lbl">日程を選択</span>
+              <span class="date-pick-val empty" id="disp-date">タップしてカレンダーを開く</span>
+            </span>
+            <span class="date-pick-arrow">▼</span>
+          </button>
+
+          <div class="cal-popup" id="cal-popup">
+            <div class="cal-header">
+              <button type="button" class="cal-nav" id="cal-prev">‹</button>
+              <span class="cal-month-lbl" id="cal-month-lbl"></span>
+              <button type="button" class="cal-nav" id="cal-next">›</button>
+            </div>
+            <div class="cal-step-bar">
+              <div class="cal-step-item active" id="step-start">✈ 出発日を選択中</div>
+              <div class="cal-step-item" id="step-end">🏠 帰着日を選択</div>
+            </div>
+            <div class="cal-weekdays">
+              <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+            </div>
+            <div class="cal-days" id="cal-days"></div>
+            <div class="cal-hint" id="cal-hint">出発日をタップしてください</div>
+          </div>
+
+        </div>
+        <input type="hidden" id="trip-date">
+      </div>
+
+      <div class="form-group">
+        <label for="meeting-time">集合時間</label>
+        <input type="time" id="meeting-time">
+      </div>
+
+      <div class="form-group">
+        <label for="meeting-place">集合場所</label>
+        <input type="text" id="meeting-place" placeholder="例）新宿駅 南口 みどりの窓口前">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🗺️</span>旅程</div>
+      <div id="schedule-container">
+        <div class="schedule-placeholder" id="schedule-placeholder">
+          <span class="icon">📅</span>
+          上の日程でカレンダーから日付を選択すると<br>日別の旅程入力欄が表示されます
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📝</span>メモ・持ち物</div>
+      <div class="form-group">
+        <textarea id="baggage" placeholder="例）&#10;・身分証明書&#10;・充電器&#10;・常備薬&#10;・モバイルバッテリー&#10;&#10;集合場所に迷ったらリーダーに連絡してください"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🖼️</span>背景画像（任意）</div>
+      <div class="upload-area" style="border:2px dashed var(--border);border-radius:var(--r-md);padding:28px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;">
+        <input type="file" id="bg-image" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+        <div style="font-size:32px;">📷</div>
+        <p id="upload-hint" style="font-size:13px;color:var(--sub);margin-top:8px;">タップして画像を選択<br><span style="font-size:11px;">JPG・PNG・HEIC など対応</span></p>
+      </div>
+      <img id="upload-preview" alt="背景画像プレビュー" style="margin-top:12px;border-radius:var(--r-sm);max-width:100%;max-height:180px;object-fit:cover;display:none;width:100%;">
+    </div>
+
+    <button class="btn-generate" id="generate-btn" type="button">
+      <span class="label">🎉 しおりを生成する</span>
+      <span class="loading">⏳ 生成中…</span>
+    </button>
+    <div class="sub-actions">
+      <button class="btn-clear" id="clear-btn" type="button">入力内容をクリア</button>
+    </div>
+
+    <div id="result-section">
+      <div class="card" style="margin-top:16px;padding:20px;">
+        <div class="card-title" style="margin-bottom:12px;"><span>✨</span>完成！しおりを共有しよう</div>
+        <div class="result-preview-wrap">
+          <img id="result-preview" alt="生成されたしおり">
+        </div>
+        <div class="action-buttons">
+          <button class="btn-share" id="share-btn" type="button">
+            <span id="share-icon">📤</span><span id="share-label">共有する</span>
+          </button>
+          <button class="btn-save" id="save-btn" type="button">
+            <span>💾</span> 保存する
+          </button>
+        </div>
+        <p class="hint-text" id="hint-text">画像を長押しして保存することもできます</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="shiori-canvas-wrap" aria-hidden="true">
+    <div id="shiori-output"></div>
+  </div>
+
+  <div id="ck-footer-container"></div>
+
+  <script>
+  var STORAGE_KEY = 'cleverkitjp_travel_shiori_state_v1';
+  var DOW_JA   = ['日','月','火','水','木','金','土'];
+  var MONTH_JA = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+  function fmtDate(d) {
+    return (d.getMonth()+1) + '月' + d.getDate() + '日（' + DOW_JA[d.getDay()] + '）';
+  }
+
+  function diffDays(a, b) {
+    return Math.round((b - a) / 86400000);
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  var cal = {
+    year  : new Date().getFullYear(),
+    month : new Date().getMonth(),
+    start : null,
+    end   : null,
+    step  : 'start'
+  };
+
+  var scheduleData = [];
+  var bgImageDataUrl = null;
+  var generatedBlob = null;
+  var shareReady = false;
+
+  function toDateOrNull(v) {
+    if (!v) return null;
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function saveFormState() {
+    try {
+      var state = {
+        tripTitle: document.getElementById('trip-title').value,
+        meetingTime: document.getElementById('meeting-time').value,
+        meetingPlace: document.getElementById('meeting-place').value,
+        baggage: document.getElementById('baggage').value,
+        cal: {
+          year: cal.year,
+          month: cal.month,
+          start: cal.start ? cal.start.toISOString() : null,
+          end: cal.end ? cal.end.toISOString() : null,
+          step: cal.step
+        },
+        scheduleData: scheduleData,
+        bgImageDataUrl: bgImageDataUrl
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn('state save error', e);
+    }
+  }
+
+  function restoreFormState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var state = JSON.parse(raw);
+      document.getElementById('trip-title').value = state.tripTitle || '';
+      document.getElementById('meeting-time').value = state.meetingTime || '';
+      document.getElementById('meeting-place').value = state.meetingPlace || '';
+      document.getElementById('baggage').value = state.baggage || '';
+
+      if (state.cal) {
+        cal.year = typeof state.cal.year === 'number' ? state.cal.year : cal.year;
+        cal.month = typeof state.cal.month === 'number' ? state.cal.month : cal.month;
+        cal.start = toDateOrNull(state.cal.start);
+        cal.end = toDateOrNull(state.cal.end);
+        cal.step = state.cal.step || (!cal.start ? 'start' : !cal.end ? 'end' : 'done');
+      }
+
+      if (Array.isArray(state.scheduleData)) {
+        scheduleData = state.scheduleData.map(function(day) {
+          return {
+            rows: Array.isArray(day.rows) ? day.rows.map(function(row) {
+              return { time: row.time || '', content: row.content || '' };
+            }) : []
+          };
+        });
+      }
+
+      bgImageDataUrl = state.bgImageDataUrl || null;
+      if (bgImageDataUrl) {
+        var prev = document.getElementById('upload-preview');
+        prev.src = bgImageDataUrl;
+        prev.style.display = 'block';
+        document.getElementById('upload-hint').textContent = '画像を変更するにはタップ';
+      }
+
+      updateDateUI();
+      renderCal();
+    } catch (e) {
+      console.warn('state restore error', e);
+    }
+  }
+
+  function clearAllInputs() {
+    if (!confirm('前回の入力内容をすべて削除します。よろしいですか？')) return;
+
+    document.getElementById('trip-title').value = '';
+    document.getElementById('meeting-time').value = '';
+    document.getElementById('meeting-place').value = '';
+    document.getElementById('baggage').value = '';
+    document.getElementById('trip-date').value = '';
+    document.getElementById('bg-image').value = '';
+    document.getElementById('upload-preview').src = '';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('upload-hint').innerHTML = 'タップして画像を選択<br><span style="font-size:11px;">JPG・PNG・HEIC など対応</span>';
+
+    cal = {
+      year  : new Date().getFullYear(),
+      month : new Date().getMonth(),
+      start : null,
+      end   : null,
+      step  : 'start'
+    };
+    scheduleData = [];
+    bgImageDataUrl = null;
+    generatedBlob = null;
+    shareReady = false;
+
+    document.getElementById('result-section').classList.remove('visible');
+    document.getElementById('result-preview').src = '';
+    document.getElementById('share-icon').textContent = '📤';
+    document.getElementById('share-label').textContent = '共有する';
+    document.getElementById('share-btn').style.background = 'linear-gradient(135deg, #25A244, #1A8035)';
+    document.getElementById('share-btn').style.boxShadow = '0 4px 16px rgba(37,162,68,.3)';
+    document.getElementById('hint-text').textContent = '画像を長押しして保存することもできます';
+
+    closeCal();
+    updateDateUI();
+    renderCal();
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  function renderCal() {
+    var y = cal.year, m = cal.month;
+    document.getElementById('cal-month-lbl').textContent = y + '年 ' + MONTH_JA[m];
+
+    var daysEl   = document.getElementById('cal-days');
+    var today    = new Date(); today.setHours(0,0,0,0);
+    var firstDow = new Date(y, m, 1).getDay();
+    var lastDate = new Date(y, m+1, 0).getDate();
+
+    daysEl.innerHTML = '';
+
+    for (var i = 0; i < firstDow; i++) {
+      var emp = document.createElement('div');
+      emp.className = 'cal-day empty';
+      daysEl.appendChild(emp);
+    }
+
+    for (var d = 1; d <= lastDate; d++) {
+      (function(day) {
+        var date = new Date(y, m, day); date.setHours(0,0,0,0);
+        var t = date.getTime();
+        var s = cal.start ? new Date(cal.start).setHours(0,0,0,0) : null;
+        var e = cal.end   ? new Date(cal.end).setHours(0,0,0,0)   : null;
+        var dow = date.getDay();
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cal-day';
+        btn.textContent = day;
+
+        if (dow === 0) btn.classList.add('sun');
+        if (dow === 6) btn.classList.add('sat');
+        if (t === today.getTime()) btn.classList.add('today');
+
+        if (s && t === s) {
+          btn.classList.add('sel-start');
+          if (e && s !== e) btn.classList.add('range-s');
+        }
+        if (e && t === e) {
+          btn.classList.add('sel-end');
+          if (s && s !== e) btn.classList.add('range-e');
+        }
+        if (s && e && t > s && t < e) btn.classList.add('in-range');
+
+        btn.addEventListener('click', function() { onDayClick(date); });
+        daysEl.appendChild(btn);
+      })(d);
+    }
+
+    var hint = document.getElementById('cal-hint');
+    if (cal.step === 'start') {
+      hint.textContent = '出発日をタップしてください';
+    } else if (cal.step === 'end') {
+      hint.textContent = '帰着日をタップしてください（同日 = 日帰り）';
+    } else {
+      hint.textContent = '日程を変更するには、もう一度日付を選び直してください';
+    }
+  }
+
+  function onDayClick(date) {
+    if (cal.step === 'start') {
+      cal.start = date;
+      cal.end   = null;
+      cal.step  = 'end';
+    } else if (cal.step === 'end') {
+      if (date < cal.start) {
+        cal.start = date;
+        cal.end   = null;
+      } else {
+        cal.end  = date;
+        cal.step = 'done';
+      }
+    } else {
+      cal.start = date;
+      cal.end   = null;
+      cal.step  = 'end';
+    }
+
+    updateDateUI();
+    renderCal();
+    saveFormState();
+
+    if (cal.step === 'done') {
+      setTimeout(closeCal, 250);
+    }
+  }
+
+  function updateDateUI() {
+    var dispDate  = document.getElementById('disp-date');
+    var btn       = document.getElementById('date-pick-btn');
+    var stepStart = document.getElementById('step-start');
+    var stepEnd   = document.getElementById('step-end');
+    var isOpen    = document.getElementById('cal-popup').classList.contains('open');
+
+    if (cal.start && cal.end) {
+      var nights = diffDays(cal.start, cal.end);
+      var label  = fmtDate(cal.start) + ' 〜 ' + fmtDate(cal.end);
+      label += '　' + (nights + 1) + '日間';
+      if (nights > 0) label += '（' + nights + '泊）';
+      else            label += '（日帰り）';
+      dispDate.textContent = label;
+      dispDate.classList.remove('empty');
+      btn.classList.add('has-val');
+      document.getElementById('trip-date').value = fmtDate(cal.start) + ' 〜 ' + fmtDate(cal.end);
+    } else if (cal.start) {
+      dispDate.textContent = fmtDate(cal.start) + ' 〜 帰着日を選択';
+      dispDate.classList.remove('empty');
+      btn.classList.remove('has-val');
+      document.getElementById('trip-date').value = fmtDate(cal.start);
+    } else {
+      dispDate.textContent = 'タップしてカレンダーを開く';
+      dispDate.classList.add('empty');
+      btn.classList.remove('has-val');
+      document.getElementById('trip-date').value = '';
+    }
+
+    btn.classList.toggle('open', isOpen);
+
+    stepStart.className = 'cal-step-item';
+    stepEnd.className   = 'cal-step-item';
+    if (cal.step === 'start') {
+      stepStart.classList.add('active');
+      stepStart.textContent = '✈ 出発日を選択中';
+      stepEnd.textContent   = cal.end ? fmtDate(cal.end) : '🏠 帰着日を選択';
+      if (cal.end) stepEnd.classList.add('done');
+    } else if (cal.step === 'end') {
+      stepEnd.classList.add('active');
+      stepEnd.textContent   = '🏠 帰着日を選択中';
+      stepStart.textContent = cal.start ? fmtDate(cal.start) : '✈ 出発日';
+      if (cal.start) stepStart.classList.add('done');
+    } else {
+      stepStart.classList.add('done');
+      stepEnd.classList.add('done');
+      stepStart.textContent = fmtDate(cal.start);
+      stepEnd.textContent   = fmtDate(cal.end);
+    }
+
+    rebuildSchedule();
+  }
+
+  function openCal(forStep) {
+    cal.step = forStep;
+    var ref = forStep === 'start' ? cal.start : (cal.end || cal.start);
+    if (ref) { cal.year = ref.getFullYear(); cal.month = ref.getMonth(); }
+    document.getElementById('cal-popup').classList.add('open');
+    updateDateUI();
+    renderCal();
+  }
+
+  function closeCal() {
+    document.getElementById('cal-popup').classList.remove('open');
+    updateDateUI();
+  }
+
+  document.getElementById('date-pick-btn').addEventListener('click', function() {
+    var popup = document.getElementById('cal-popup');
+    if (popup.classList.contains('open')) {
+      closeCal();
+    } else {
+      var step = (!cal.start) ? 'start' : (!cal.end) ? 'end' : 'start';
+      openCal(step);
+    }
+  });
+  document.getElementById('cal-prev').addEventListener('click', function() {
+    cal.month--; if (cal.month < 0) { cal.month = 11; cal.year--; } renderCal();
+  });
+  document.getElementById('cal-next').addEventListener('click', function() {
+    cal.month++; if (cal.month > 11) { cal.month = 0; cal.year++; } renderCal();
+  });
+
+  function rebuildSchedule() {
+    var container   = document.getElementById('schedule-container');
+    var placeholder = document.getElementById('schedule-placeholder');
+
+    if (!cal.start) {
+      container.innerHTML = '';
+      container.appendChild(placeholder);
+      scheduleData = [];
+      saveFormState();
+      return;
+    }
+
+    var totalDays = cal.end ? diffDays(cal.start, cal.end) + 1 : 1;
+
+    while (scheduleData.length < totalDays) {
+      var idx = scheduleData.length;
+      scheduleData.push({ rows: getInitialRows(idx) });
+    }
+    if (scheduleData.length > totalDays) {
+      scheduleData.splice(totalDays);
+    }
+
+    container.innerHTML = '';
+    scheduleData.forEach(function(dayData, idx) {
+      container.appendChild(buildDayBlock(idx, dayData));
+    });
+    saveFormState();
+  }
+
+  function getInitialRows(dayIdx) {
+    var n = dayIdx === 0 ? 5 : dayIdx === 1 ? 6 : 4;
+    var rows = [];
+    for (var i = 0; i < n; i++) rows.push({ time: '', content: '' });
+    return rows;
+  }
+
+  function buildDayBlock(dayIdx, dayData) {
+    var isLastDay = (dayIdx === scheduleData.length - 1);
+    var block = document.createElement('div');
+    block.className = 'day-block';
+
+    var hdr = document.createElement('div');
+    hdr.className = 'day-block-header';
+
+    var title = document.createElement('div');
+    title.className = 'day-block-title';
+    title.textContent = (dayIdx + 1) + '日目';
+
+    var dateLabel = document.createElement('div');
+    dateLabel.className = 'day-block-date';
+    if (cal.start) {
+      var d = new Date(cal.start);
+      d.setDate(d.getDate() + dayIdx);
+      dateLabel.textContent = fmtDate(d);
+    }
+
+    hdr.appendChild(title);
+    hdr.appendChild(dateLabel);
+    block.appendChild(hdr);
+
+    var body = document.createElement('div');
+    body.className = 'day-block-body';
+    var rowsWrap = document.createElement('div');
+
+    dayData.rows.forEach(function(rowData, ri) {
+      rowsWrap.appendChild(buildScheduleRow(dayData, rowData, ri, dayIdx, isLastDay));
+    });
+    body.appendChild(rowsWrap);
+
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'add-row-btn';
+    addBtn.textContent = '＋ 行を追加';
+    addBtn.addEventListener('click', function() {
+      var newRow = { time: '', content: '' };
+      dayData.rows.push(newRow);
+      var newRowEl = buildScheduleRow(dayData, newRow, dayData.rows.length - 1, dayIdx, isLastDay);
+      rowsWrap.appendChild(newRowEl);
+      syncDelBtns(rowsWrap, dayData);
+      saveFormState();
+    });
+    body.appendChild(addBtn);
+    block.appendChild(body);
+
+    syncDelBtns(rowsWrap, dayData);
+    return block;
+  }
+
+  function buildScheduleRow(dayData, rowData, rowIdx, dayIdx, isLastDay) {
+    var row = document.createElement('div');
+    row.className = 'schedule-row';
+
+    var ti = document.createElement('input');
+    ti.type = 'time';
+    ti.className = 'time-input';
+    ti.value = rowData.time || '';
+    ti.setAttribute('aria-label', '時間');
+    ti.addEventListener('change', function() { rowData.time = this.value; saveFormState(); });
+    row.appendChild(ti);
+
+    var ci = document.createElement('input');
+    ci.type = 'text';
+    ci.className = 'content-input';
+    ci.value = rowData.content || '';
+    ci.placeholder = getSamplePlaceholder(dayIdx, rowIdx, isLastDay);
+    ci.setAttribute('aria-label', '内容');
+    ci.addEventListener('input', function() { rowData.content = this.value; saveFormState(); });
+    row.appendChild(ci);
+
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'del-btn';
+    del.innerHTML = '×';
+    del.setAttribute('aria-label', 'この行を削除');
+    del.addEventListener('click', function() {
+      var idx = dayData.rows.indexOf(rowData);
+      if (idx !== -1) dayData.rows.splice(idx, 1);
+      var wrap = row.parentNode;
+      wrap.removeChild(row);
+      syncDelBtns(wrap, dayData);
+      saveFormState();
+    });
+    row.appendChild(del);
+
+    return row;
+  }
+
+  function syncDelBtns(wrap) {
+    var rows = wrap.querySelectorAll('.schedule-row');
+    rows.forEach(function(r) {
+      r.querySelector('.del-btn').disabled = rows.length <= 1;
+    });
+  }
+
+  function getSamplePlaceholder(dayIdx, rowIdx, isLastDay) {
+    var day1 = [
+      '例）羽田空港へ移動',
+      '例）羽田空港発　JL921便',
+      '例）那覇空港着 → レンタカー受け取り',
+      '例）国際通り 散策・昼食',
+      '例）〇〇ホテル着（チェックイン）'
+    ];
+    var day2last = [
+      '例）ホテル 朝食・チェックアウト',
+      '例）首里城 観光',
+      '例）沖縄そば 昼食',
+      '例）那覇空港 おみやげタイム',
+      '例）那覇空港発　NH462便',
+      '例）羽田空港着　解散'
+    ];
+    var dayMid = [
+      '例）ホテル 朝食',
+      '例）観光スポット 見学',
+      '例）昼食',
+      '例）〇〇ホテル着（チェックイン）'
+    ];
+    var dayNLast = [
+      '例）ホテル 朝食・チェックアウト',
+      '例）観光スポット 見学',
+      '例）昼食',
+      '例）空港・駅へ移動',
+      '例）帰路　解散'
+    ];
+
+    var list;
+    if (isLastDay) {
+      list = dayIdx === 1 ? day2last : dayNLast;
+    } else {
+      list = dayIdx === 0 ? day1 : dayMid;
+    }
+    return rowIdx < list.length ? list[rowIdx] : '例）内容を入力';
+  }
+
+  document.getElementById('bg-image').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      bgImageDataUrl = ev.target.result;
+      var prev = document.getElementById('upload-preview');
+      prev.src = bgImageDataUrl;
+      prev.style.display = 'block';
+      document.getElementById('upload-hint').textContent = '画像を変更するにはタップ';
+      saveFormState();
+    };
+    reader.onerror = function() { alert('画像の読み込みに失敗しました。'); };
+    reader.readAsDataURL(file);
+  });
+
+  function buildShioriHTML() {
+    var title     = document.getElementById('trip-title').value.trim();
+    var date      = document.getElementById('trip-date').value.trim();
+    var meetTime  = document.getElementById('meeting-time').value;
+    var meetPlace = document.getElementById('meeting-place').value.trim();
+    var baggage   = document.getElementById('baggage').value.trim();
+
+    var html = '';
+    html += '<div class="s-header">';
+    html += '<div class="s-header-bg"></div>';
+    if (bgImageDataUrl) {
+      html += '<img class="s-header-img" src="' + bgImageDataUrl + '" alt="背景">';
+      html += '<div class="s-header-overlay"></div>';
+    }
+    html += '<div class="s-header-content">';
+    html += '<div class="s-badge">✈ TRAVEL GUIDE</div>';
+    if (title) html += '<div class="s-title">' + esc(title) + '</div>';
+    html += '</div></div>';
+
+    html += '<div class="s-body">';
+
+    if (date || meetTime || meetPlace) {
+      html += '<div class="s-section">';
+      html += secHdr('📅', '基本情報');
+      html += '<div class="s-sec-body">';
+      if (date)      html += infoRow('日程',    date);
+      if (meetTime)  html += infoRow('集合時間', meetTime);
+      if (meetPlace) html += infoRow('集合場所', meetPlace);
+      html += '</div></div>';
+    }
+
+    scheduleData.forEach(function(dayData, idx) {
+      var validRows = dayData.rows.filter(function(r) { return r.time || r.content; });
+      if (validRows.length === 0) return;
+
+      var dayLabel = (idx + 1) + '日目';
+      var dateStr  = '';
+      if (cal.start) {
+        var d = new Date(cal.start);
+        d.setDate(d.getDate() + idx);
+        dateStr = fmtDate(d);
+      }
+
+      html += '<div class="s-section">';
+      html += secHdr('🗓️', dayLabel + (dateStr ? '　' + dateStr : ''));
+      html += '<div class="s-sec-body">';
+      validRows.forEach(function(r) {
+        html += '<div class="s-row">';
+        html += '<div class="s-time">'    + esc(r.time)    + '</div>';
+        html += '<div class="s-dot"></div>';
+        html += '<div class="s-content">' + esc(r.content) + '</div>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    });
+
+    if (baggage) {
+      html += '<div class="s-section">';
+      html += secHdr('📝', 'メモ・持ち物');
+      html += '<div class="s-sec-body"><div class="s-memo">' + esc(baggage) + '</div></div>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+    html += '<div class="s-footer">cleverkitjp</div>';
+    return html;
+  }
+
+  function secHdr(icon, title) {
+    return '<div class="s-sec-hdr"><span class="ico">' + icon + '</span><span class="ttl">' + esc(title) + '</span></div>';
+  }
+  function infoRow(lbl, val) {
+    return '<div class="s-info-row"><div class="s-info-lbl">' + esc(lbl) + '</div><div class="s-info-val">' + esc(val) + '</div></div>';
+  }
+
+  document.getElementById('generate-btn').addEventListener('click', async function() {
+    var btn = this;
+
+    if (!document.getElementById('trip-title').value.trim()) {
+      alert('旅行タイトルを入力してください');
+      document.getElementById('trip-title').focus();
+      return;
+    }
+
+    btn.classList.add('is-loading');
+    btn.disabled = true;
+
+    try {
+      document.getElementById('shiori-output').innerHTML = buildShioriHTML();
+      await new Promise(function(r) { setTimeout(r, 300); });
+
+      var canvas = await html2canvas(document.getElementById('shiori-output'), {
+        scale          : 2,
+        width          : 1080,
+        windowWidth    : 1080,
+        useCORS        : true,
+        logging        : false,
+        backgroundColor: '#FFF8F0',
+      });
+
+      document.getElementById('result-preview').src = canvas.toDataURL('image/png');
+      canvas.toBlob(function(b) { generatedBlob = b; }, 'image/png');
+
+      var rs = document.getElementById('result-section');
+      rs.classList.add('visible');
+      rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      updateShareUI();
+      saveFormState();
+    } catch(err) {
+      console.error('生成エラー:', err);
+      alert('画像の生成に失敗しました。もう一度お試しください。');
+    } finally {
+      btn.classList.remove('is-loading');
+      btn.disabled = false;
+    }
+  });
+
+  function updateShareUI() {
+    if (shareReady) return;
+    shareReady = true;
+    var icon = document.getElementById('share-icon');
+    var lbl  = document.getElementById('share-label');
+    var hint = document.getElementById('hint-text');
+    if (navigator.share && navigator.canShare) {
+      icon.textContent = '📤'; lbl.textContent = '共有する';
+      hint.textContent = '「共有する」ボタンからLINEに送れます';
+    } else {
+      var sb = document.getElementById('share-btn');
+      sb.style.background = 'linear-gradient(135deg,#E8744A,#E8726A)';
+      sb.style.boxShadow  = '0 4px 16px rgba(232,116,74,.35)';
+      icon.textContent = '📥'; lbl.textContent = '画像を保存';
+      hint.textContent = '保存した画像をLINEで送りましょう！';
+    }
+  }
+
+  document.getElementById('share-btn').addEventListener('click', async function() {
+    if (!generatedBlob) return;
+    var ttl  = document.getElementById('trip-title').value.trim() || '旅行しおり';
+    var file = new File([generatedBlob], ttl + '.png', { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ title: ttl, text: ttl + ' のしおりです✈️', files: [file] });
+      } catch(e) {
+        if (e.name !== 'AbortError') saveImage();
+      }
+    } else {
+      saveImage();
+    }
+  });
+
+  document.getElementById('save-btn').addEventListener('click', saveImage);
+  document.getElementById('clear-btn').addEventListener('click', clearAllInputs);
+  document.getElementById('trip-title').addEventListener('input', saveFormState);
+  document.getElementById('meeting-time').addEventListener('change', saveFormState);
+  document.getElementById('meeting-place').addEventListener('input', saveFormState);
+  document.getElementById('baggage').addEventListener('input', saveFormState);
+
+  function saveImage() {
+    if (!generatedBlob) return;
+    var ttl = document.getElementById('trip-title').value.trim() || '旅行しおり';
+    var url = URL.createObjectURL(generatedBlob);
+    var a   = document.createElement('a');
+    a.href = url; a.download = ttl + '.png';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+
+  (function() {
+    var c = document.getElementById('ck-footer-container');
+    if (!c) return;
+    fetch('https://cleverkitjp.github.io/footer.html')
+      .then(function(r) { return r.text(); })
+      .then(function(h) {
+        c.innerHTML = h;
+        try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) { console.warn('adsbygoogle error',e); }
+      })
+      .catch(function(e) { console.warn('footer load error',e); });
+  })();
+
+  restoreFormState();
+  updateDateUI();
+  renderCal();
+  </script>
+</body>
+</html>
