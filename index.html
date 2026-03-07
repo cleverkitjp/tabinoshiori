@@ -1300,6 +1300,26 @@
       .then(function(r) { return r.text(); })
       .then(function(h) {
         c.innerHTML = h;
+        try {
+          var targetUrl = 'https://cleverkitjp.github.io/travel-packing-checklist/';
+          var targetText = '旅行持ち物チェックリスト｜旅行前の持ち物を自動生成';
+          var allLinks = c.querySelectorAll('a[href]');
+          var section = Array.prototype.find.call(c.querySelectorAll('section,div'), function(el) {
+            return /関連ツール/.test((el.textContent || '').trim());
+          });
+          var baseLink = section ? section.querySelector('a[href]') : (allLinks.length ? allLinks[0] : null);
+          if (baseLink) {
+            var root = section || baseLink.parentNode;
+            if (!root.querySelector('a[href="' + targetUrl + '"]')) {
+              var newLink = baseLink.cloneNode(true);
+              newLink.href = targetUrl;
+              newLink.textContent = targetText;
+              baseLink.parentNode.appendChild(newLink);
+            }
+          }
+        } catch (e) {
+          console.warn('related tools link insert error', e);
+        }
         try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) { console.warn('adsbygoogle error',e); }
       })
       .catch(function(e) { console.warn('footer load error',e); });
